@@ -8,7 +8,8 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smart4j.framework.util.PropsUtil;
+import org.smart4j.framework.ConfigConstant;
+import org.smart4j.framework.ConfigHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +20,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class DatabaseHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
@@ -33,12 +33,11 @@ public class DatabaseHelper {
         CONNECTION_HOLDER = new ThreadLocal<>();
         QUERY_RUNNER = new QueryRunner();
 
-        Properties conf = PropsUtil.loadProps("config.properties");
         DATA_SOURCE = new BasicDataSource();
-        DATA_SOURCE.setDriverClassName(conf.getProperty("jdbc.driver"));
-        DATA_SOURCE.setUrl(conf.getProperty("jdbc.url"));
-        DATA_SOURCE.setUsername(conf.getProperty("jdbc.username"));
-        DATA_SOURCE.setPassword(conf.getProperty("jdbc.password"));
+        DATA_SOURCE.setDriverClassName(ConfigHelper.getJdbcDriver());
+        DATA_SOURCE.setUrl(ConfigHelper.getJdbcUrl());
+        DATA_SOURCE.setUsername(ConfigHelper.getJdbcUsername());
+        DATA_SOURCE.setPassword(ConfigHelper.getJdbcPassword());
     }
 
     private static Connection getConnection() {
