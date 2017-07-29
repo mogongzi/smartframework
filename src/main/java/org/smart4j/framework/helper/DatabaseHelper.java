@@ -8,7 +8,6 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smart4j.framework.ConfigConstant;
 import org.smart4j.framework.ConfigHelper;
 
 import java.io.BufferedReader;
