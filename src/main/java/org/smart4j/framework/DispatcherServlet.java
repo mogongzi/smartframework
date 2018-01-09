@@ -5,10 +5,7 @@ import org.smart4j.framework.bean.Data;
 import org.smart4j.framework.bean.Handler;
 import org.smart4j.framework.bean.Param;
 import org.smart4j.framework.bean.View;
-import org.smart4j.framework.helper.BeanHelper;
-import org.smart4j.framework.helper.ControllerHelper;
-import org.smart4j.framework.helper.RequestHelper;
-import org.smart4j.framework.helper.UploadHelper;
+import org.smart4j.framework.helper.*;
 import org.smart4j.framework.util.JsonUtil;
 import org.smart4j.framework.util.ReflectionUtil;
 
@@ -41,38 +38,44 @@ public class DispatcherServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String requestMethod = req.getMethod().toLowerCase();
-        String requestPath = req.getPathInfo();
+        ServletHelper.init(req, resp);
 
-        if (requestPath.equals("/favicon.ico")) {
-            return;
-        }
+        try {
+            String requestMethod = req.getMethod().toLowerCase();
+            String requestPath = req.getPathInfo();
 
-        Handler handler = ControllerHelper.getHandler(requestMethod, requestPath);
-        if (handler != null) {
-            Class<?> controllerClass = handler.getControllerClass();
-            Object controllerBean = BeanHelper.getBean(controllerClass);
-
-            Param param;
-            if (UploadHelper.isMultipart(req)) {
-                param = UploadHelper.createParam(req);
-            } else {
-                param = RequestHelper.createParam(req);
+            if (requestPath.equals("/favicon.ico")) {
+                return;
             }
 
-            Object result;
-            Method actionMethod = handler.getActionMethod();
-            if (param.isEmpty()) {
-                result = ReflectionUtil.invokeMethod(controllerBean, actionMethod);
-            } else {
-                result = ReflectionUtil.invokeMethod(controllerBean, actionMethod, param);
-            }
+            Handler handler = ControllerHelper.getHandler(requestMethod, requestPath);
+            if (handler != null) {
+                Class<?> controllerClass = handler.getControllerClass();
+                Object controllerBean = BeanHelper.getBean(controllerClass);
 
-            if (result instanceof View) {
-                handleViewResult((View) result, req, resp);
-            } else if (result instanceof Data) {
-                handleDataResult((Data) result, req, resp);
+                Param param;
+                if (UploadHelper.isMultipart(req)) {
+                    param = UploadHelper.createParam(req);
+                } else {
+                    param = RequestHelper.createParam(req);
+                }
+
+                Object result;
+                Method actionMethod = handler.getActionMethod();
+                if (param.isEmpty()) {
+                    result = ReflectionUtil.invokeMethod(controllerBean, actionMethod);
+                } else {
+                    result = ReflectionUtil.invokeMethod(controllerBean, actionMethod, param);
+                }
+
+                if (result instanceof View) {
+                    handleViewResult((View) result, req, resp);
+                } else if (result instanceof Data) {
+                    handleDataResult((Data) result, req, resp);
+                }
             }
+        } finally {
+            ServletHelper.destory();
         }
     }
 
